@@ -365,82 +365,94 @@ X = 0
 O = 0
 D = 0
 
-# state = U3T.initial
-# while True:
-#     print()
-#     print()
-#     print("You are playing as:", state.to_move[0])
-#     print("---------------------------")
-#     U3T.display(state)
-#     print("---------------------------")
-#     actions = U3T.actions(state)
-#     print("Possible Actions:", actions)
-
-#     # print("Random Player Action:", games.random_player(U3T, state))
-#     # print("Alpha Beta Cutoff Player Action:", alpha_beta_cutoff_player(U3T, state))
-
-#     move = int(input('Enter your move: '))
-#     move = actions[move]
-
-#     # move = games.random_player(U3T, state)
-#     state = U3T.result(state, move)
-#     if U3T.terminal_test(state):
-#         # print('A Wins!')
-#         A += 1
-#         break
-
-#     move = U3T.heatmap_choose_move(state)
-#     state = U3T.result(state, move)
-#     if U3T.terminal_test(state):
-#         # print('B Wins!')
-#         B += 1
-#         break
 
 U3T = U3T()
-for i in range(0, 1000):
-    state = U3T.initial
-    U3T.overall_board = {}
+state = U3T.initial
+while True:
+    print()
+    print()
+    print("You are playing as:", state.to_move[0])
+    print("---------------------------")
+    U3T.display(state)
+    print("---------------------------")
+    actions = U3T.actions(state)
+    print("Possible Actions:", actions)
 
-    while True:
-        # print("Random Player Action:", games.random_player(U3T, state))
-        # print("Alpha Beta Cutoff Player Action:", alpha_beta_cutoff_player(U3T, state))
+    # print("Random Player Action:", games.random_player(U3T, state))
+    # print("Alpha Beta Cutoff Player Action:", alpha_beta_cutoff_player(U3T, state))
 
-        # print("---------------------------")
-        # U3T.display(state)
-        # print("---------------------------")
+    move = int(input('Enter your move: '))
+    move = actions[move]
+    state = U3T.result(state, move)
+    print("---------------------------")
+    U3T.display(state)
+    print("---------------------------")
+    if(U3T.gameWon(U3T.overall_board, 'X') != ''):
+        print("---------------------------")
+        U3T.display(state)
+        print("---------------------------")
+        print("You Win!")
+        break
 
-        move = U3T.heatmap_choose_move(state)
-        if(move == None):
-            D += 1
-            break
-        state = U3T.result(state, move)
-        if(U3T.gameWon(U3T.overall_board, 'X') != ''):
-            X += 1
+    move = U3T.heatmap_choose_move(state)
+    if(move == None):
+        D += 1
+        break
+    state = U3T.result(state, move)
+    if(U3T.gameWon(U3T.overall_board, 'O') != ''):
+        print("---------------------------")
+        U3T.display(state)
+        print("---------------------------")
+        print("You Lose!")
+        break
+    
 
-            # print("---------------------------")
-            # U3T.display(state)
-            # print("---------------------------")
-            break
+
+# U3T = U3T()
+# for i in range(0, 1000):
+#     state = U3T.initial
+#     U3T.overall_board = {}
+
+#     while True:
+#         # print("Random Player Action:", games.random_player(U3T, state))
+#         # print("Alpha Beta Cutoff Player Action:", alpha_beta_cutoff_player(U3T, state))
+
+#         # print("---------------------------")
+#         # U3T.display(state)
+#         # print("---------------------------")
+
+#         move = U3T.heatmap_choose_move(state)
+#         if(move == None):
+#             D += 1
+#             break
+#         state = U3T.result(state, move)
+#         if(U3T.gameWon(U3T.overall_board, 'X') != ''):
+#             X += 1
+
+#             # print("---------------------------")
+#             # U3T.display(state)
+#             # print("---------------------------")
+#             break
         
-        # print("---------------------------")
-        # U3T.display(state)
-        # print("---------------------------")
+#         # print("---------------------------")
+#         # U3T.display(state)
+#         # print("---------------------------")
 
-        move = games.random_player(U3T, state)
-        if(move == None):
-            D += 1
-            break
-        state = U3T.result(state, move)
-        if(U3T.gameWon(U3T.overall_board, 'O') != ''):
-            O += 1
+#         move = games.random_player(U3T, state)
+#         if(move == None):
+#             D += 1
+#             break
+#         state = U3T.result(state, move)
+#         if(U3T.gameWon(U3T.overall_board, 'O') != ''):
+#             O += 1
 
-            # print("---------------------------")
-            # U3T.display(state)
-            # print("---------------------------")
-            break
+#             # print("---------------------------")
+#             # U3T.display(state)
+#             # print("---------------------------")
+#             break
 
     
 
-print("X Wins: " + str(X))
-print("O Wins: " + str(O))
-print("Draws: " + str(D))
+# print("X Wins: " + str(X))
+# print("O Wins: " + str(O))
+# print("Draws: " + str(D))
