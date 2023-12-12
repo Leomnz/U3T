@@ -200,8 +200,8 @@ class U3T(Game):
                 playerBoardHeat = self.compute_board_wins_heat(player, otherPlayer, self.get_board_from_move(move))                       # If player is likely to win by playing in this board, play there
                 opponentBoardHeat = self.compute_board_wins_heat(otherPlayer, player, self.get_board_from_move(move))                     # If opponent is likely to win by playing in this board, playing in this will block the opponent in some way
         
-                hotnessDict[move] = playerTileHeat + 0 * opponentTileHeat + 0 * opponentHappinessHeat + playerBoardHeat + 0 * opponentBoardHeat
-                print("Move: (" + str(move[0]) + "," + str(move[1]) + "), Player Tile Heat: " + str(playerTileHeat) + ", Opponent Tile Heat: " + str(opponentTileHeat) + ", Opponent Happiness Heat: " + str(opponentHappinessHeat) + ", Player Board Heat: " + str(playerBoardHeat) + ", Opponent Board Heat: " + str(opponentBoardHeat) + ", Total Heat: " + str(hotnessDict[move]))
+                hotnessDict[move] = 4 * playerTileHeat * playerBoardHeat + 0 * opponentTileHeat * opponentBoardHeat + 0.5 * opponentHappinessHeat
+                # print("Move: (" + str(move[0]) + "," + str(move[1]) + "), Player Tile Heat: " + str(playerTileHeat) + ", Opponent Tile Heat: " + str(opponentTileHeat) + ", Opponent Happiness Heat: " + str(opponentHappinessHeat) + ", Player Board Heat: " + str(playerBoardHeat) + ", Opponent Board Heat: " + str(opponentBoardHeat) + ", Total Heat: " + str(hotnessDict[move]))
         # Just use tile heat and opponent board heat
         else:
             for move in self.actions(state):
@@ -209,8 +209,8 @@ class U3T(Game):
                 opponentTileHeat = self.compute_tile_wins_heat(state.board, move, otherPlayer, player, self.get_board_from_move(move))    # If opponent tile heat is high, playing in this tile will block the opponent in some way
                 opponentHappinessHeat = self.compute_opponent_board_heat(player, otherPlayer, ((move[0] % 3) * 3) + (move[1] % 3))        # If opponent is likely to win from being sent to this board, don't send them there
                 
-                hotnessDict[move] = playerTileHeat + 0 * opponentTileHeat + 0 * opponentHappinessHeat
-                print("Move: (" + str(move[0]) + "," + str(move[1]) + "), Player Tile Heat: " + str(playerTileHeat) + ", Opponent Tile Heat: " + str(opponentTileHeat) + ", Opponent Happiness Heat: " + str(opponentHappinessHeat) + ", Total Heat: " + str(hotnessDict[move]))
+                hotnessDict[move] = 4 * playerTileHeat + 0 * opponentTileHeat + 0.5 * opponentHappinessHeat
+                # print("Move: (" + str(move[0]) + "," + str(move[1]) + "), Player Tile Heat: " + str(playerTileHeat) + ", Opponent Tile Heat: " + str(opponentTileHeat) + ", Opponent Happiness Heat: " + str(opponentHappinessHeat) + ", Total Heat: " + str(hotnessDict[move]))
 
         # If dictionary is empty, there is no available move. 
         if(not hotnessDict):
@@ -249,18 +249,36 @@ class U3T(Game):
     def compute_opponent_board_heat(self, player, otherPlayer, boardNum):
         # If board is already captured, don't want them to be able to go anywhere
         if(self.overall_board.get(boardNum) == 'O' or self.overall_board.get(boardNum) == 'X'):
-            return -8
+            return -5
         # Otherwise, see how likely opponent is to win from capturing that board
         else:
             return -1 * self.compute_board_wins_heat(otherPlayer, player, boardNum)
         
+    def henry_normalize_board(self, board, move, player):
+        boardNum = self.get_board_from_move(move)
+
+        newBoard = {}
+        newBoard[(0, 0)] = board.get((0 + (boardNum // 3) * 3, 0 + (boardNum % 3) * 3))
+        newBoard[(0, 1)] = board.get((0 + (boardNum // 3) * 3, 1 + (boardNum % 3) * 3))
+        newBoard[(0, 2)] = board.get((0 + (boardNum // 3) * 3, 2 + (boardNum % 3) * 3))
+        newBoard[(1, 0)] = board.get((1 + (boardNum // 3) * 3, 0 + (boardNum % 3) * 3))
+        newBoard[(1, 1)] = board.get((1 + (boardNum // 3) * 3, 1 + (boardNum % 3) * 3))
+        newBoard[(1, 2)] = board.get((1 + (boardNum // 3) * 3, 2 + (boardNum % 3) * 3))
+        newBoard[(2, 0)] = board.get((2 + (boardNum // 3) * 3, 0 + (boardNum % 3) * 3))
+        newBoard[(2, 1)] = board.get((2 + (boardNum // 3) * 3, 1 + (boardNum % 3) * 3))
+        newBoard[(2, 2)] = board.get((2 + (boardNum // 3) * 3, 2 + (boardNum % 3) * 3))
+
+        newMove = (move[0] % 3, move[1] % 3)
+        newBoard[newMove] = player
+        
+        return newBoard
+
     # Returns 1 if playing move wins a small board
     def small_board_win(self, board, move, player):
-        converted_3x3_board, converted_move = self.normalize_board(board, move)
-        converted_3x3_board[move] = player
+        converted_3x3_board = self.henry_normalize_board(board, move, player)
 
         # If small board is won with this move, return 1
-        if self.compute_utility_3x3(converted_3x3_board, converted_move, player) != 0:
+        if self.gameWon(converted_3x3_board, player) != '':
             return 1
 
         # Else return 0
@@ -290,27 +308,27 @@ class U3T(Game):
         # If cannot win in this way, return 0
         return 0
 
-    def gameWon(self, player):
+    def gameWon(self, board, player):
         # Check Rows
-        if(self.overall_board.get(0) == player and self.overall_board.get(1) == player and self.overall_board.get(2) == player):
+        if(board.get(0) == player and board.get(1) == player and board.get(2) == player):
             return player
-        if(self.overall_board.get(3) == player and self.overall_board.get(4) == player and self.overall_board.get(5) == player):
+        if(board.get(3) == player and board.get(4) == player and board.get(5) == player):
             return player
-        if(self.overall_board.get(6) == player and self.overall_board.get(7) == player and self.overall_board.get(8) == player):
+        if(board.get(6) == player and board.get(7) == player and board.get(8) == player):
             return player
         
         # Check Columns
-        if(self.overall_board.get(0) == player and self.overall_board.get(3) == player and self.overall_board.get(6) == player):
+        if(board.get(0) == player and board.get(3) == player and board.get(6) == player):
             return player
-        if(self.overall_board.get(1) == player and self.overall_board.get(4) == player and self.overall_board.get(7) == player):
+        if(board.get(1) == player and board.get(4) == player and board.get(7) == player):
             return player
-        if(self.overall_board.get(2) == player and self.overall_board.get(5) == player and self.overall_board.get(8) == player):
+        if(board.get(2) == player and board.get(5) == player and board.get(8) == player):
             return player
         
         # Check Diagonals
-        if(self.overall_board.get(0) == player and self.overall_board.get(4) == player and self.overall_board.get(8) == player):
+        if(board.get(0) == player and board.get(4) == player and board.get(8) == player):
             return player
-        if(self.overall_board.get(2) == player and self.overall_board.get(4) == player and self.overall_board.get(6) == player):
+        if(board.get(2) == player and board.get(4) == player and board.get(6) == player):
             return player
         
         return ''
@@ -379,10 +397,10 @@ D = 0
 #         break
 
 U3T = U3T()
-for i in range(0, 100):
+for i in range(0, 1000):
     state = U3T.initial
     U3T.overall_board = {}
-    
+
     while True:
         # print("Random Player Action:", games.random_player(U3T, state))
         # print("Alpha Beta Cutoff Player Action:", alpha_beta_cutoff_player(U3T, state))
@@ -396,12 +414,12 @@ for i in range(0, 100):
             D += 1
             break
         state = U3T.result(state, move)
-        if(U3T.gameWon('X') != ''):
+        if(U3T.gameWon(U3T.overall_board, 'X') != ''):
             X += 1
 
-            print("---------------------------")
-            U3T.display(state)
-            print("---------------------------")
+            # print("---------------------------")
+            # U3T.display(state)
+            # print("---------------------------")
             break
         
         # print("---------------------------")
@@ -413,12 +431,12 @@ for i in range(0, 100):
             D += 1
             break
         state = U3T.result(state, move)
-        if(U3T.gameWon('O') != ''):
+        if(U3T.gameWon(U3T.overall_board, 'O') != ''):
             O += 1
 
-            print("---------------------------")
-            U3T.display(state)
-            print("---------------------------")
+            # print("---------------------------")
+            # U3T.display(state)
+            # print("---------------------------")
             break
 
     
