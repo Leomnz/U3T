@@ -229,7 +229,7 @@ class U3T(Game):
                 playerBoardHeat = self.compute_board_wins_heat(state, player, otherPlayer, self.get_board_from_move(move))  # If player is likely to win by playing in this board, play there
                 opponentBoardHeat = self.compute_board_wins_heat(state, otherPlayer, player, self.get_board_from_move(move))  # If opponent is likely to win by playing in this board, playing in this will block the opponent in some way
 
-                hotnessDict[move] = playerTileHeat * playerBoardHeat + opponentTileHeat * opponentBoardHeat + opponentHappinessHeat
+                hotnessDict[move] = playerTileHeat * playerBoardHeat + 1 * opponentTileHeat * opponentBoardHeat + 2 * opponentHappinessHeat
                 # print("Move: (" + str(move[0]) + "," + str(move[1]) + "), Player Tile Heat: " + str(playerTileHeat) + ", Opponent Tile Heat: " + str(opponentTileHeat) + ", Opponent Happiness Heat: " + str(opponentHappinessHeat) + ", Player Board Heat: " + str(playerBoardHeat) + ", Opponent Board Heat: " + str(opponentBoardHeat) + ", Total Heat: " + str(hotnessDict[move]))
         # Just use tile heat and opponent board heat
         else:
@@ -238,7 +238,7 @@ class U3T(Game):
                 opponentTileHeat = self.compute_tile_wins_heat(state, state.board, move, otherPlayer, player, self.get_board_from_move(move))  # If opponent tile heat is high, playing in this tile will block the opponent in some way
                 opponentHappinessHeat = self.compute_opponent_board_heat(state, player, otherPlayer,((move[0] % 3) * 3) + (move[1] % 3))  # If opponent is likely to win from being sent to this board, don't send them there
 
-                hotnessDict[move] = playerTileHeat + opponentTileHeat + opponentHappinessHeat
+                hotnessDict[move] = playerTileHeat + 1 * opponentTileHeat + 2 * opponentHappinessHeat
                 # print("Move: (" + str(move[0]) + "," + str(move[1]) + "), Player Tile Heat: " + str(playerTileHeat) + ", Opponent Tile Heat: " + str(opponentTileHeat) + ", Opponent Happiness Heat: " + str(opponentHappinessHeat) + ", Total Heat: " + str(hotnessDict[move]))
 
         # If dictionary is empty, there is no available move.
@@ -253,7 +253,7 @@ class U3T(Game):
     def compute_tile_wins_heat(self, state, board, move, player, otherPlayer, boardNum):
         # If wins a board, hotness level 100
         if (self.small_board_win(board, move, player) != 0):
-            return 5
+            return 15
         # Else, check how many moves can result in win
         else:
             # Return number of possible ways player can win

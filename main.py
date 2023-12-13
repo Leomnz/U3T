@@ -44,7 +44,7 @@ O_wins = 0
 Draws = 0
 for i in range(0, 5000):
     U3T.__init__()
-    eval = U3T.play_game(games.random_player, heatmap_player)
+    eval = U3T.play_game(heatmap_player, games.random_player)
     if eval >= 1:
         X_wins += 1
     elif eval <= -1:
