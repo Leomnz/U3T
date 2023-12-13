@@ -66,7 +66,7 @@ if __name__ == "__main__":
     for i in range(0, thread_count):
         threads[i] = multiprocessing.Process(target=simulate_games,
                                              args=(
-                                                 games_per_thread, U3T(), alpha_beta_cutoff_player, games4e.mcts_player,
+                                                 games_per_thread, U3T(), heatmap_player, alpha_beta_cutoff_player,
                                                  i, queue))
     for i in range(0, thread_count):
         threads[i].start()
@@ -97,4 +97,4 @@ if __name__ == "__main__":
     print("Total O wins: ", Total_O_wins)
     print("Total Draws: ", Total_Draws)
     print("Average Memory Usage: ", Average_Memory_Usage / 1000, "KB")
-    print("Average Time Usage: ", Average_Time_Usage / 1000, "ms")
+    print("Average Time Usage: ", Average_Time_Usage / 1000, "s")

@@ -378,25 +378,24 @@ class U3T(Game):
 
     def gameWon(self, board, player):
         # Check Rows
-        if (board.get((0, 0)) == player and board.get((0, 1)) == player and board.get((0, 2)) == player):
+        if board.get((0, 0)) == player and board.get((0, 1)) == player and board.get((0, 2)) == player:
             return player
-        if (board.get((1, 0)) == player and board.get((1, 1)) == player and board.get((1, 2)) == player):
+        if board.get((1, 0)) == player and board.get((1, 1)) == player and board.get((1, 2)) == player:
             return player
-        if (board.get((2, 0)) == player and board.get((2, 1)) == player and board.get((2, 2)) == player):
+        if board.get((2, 0)) == player and board.get((2, 1)) == player and board.get((2, 2)) == player:
             return player
 
         # Check Columns
-        if (board.get((0, 0)) == player and board.get((1, 0)) == player and board.get((2, 0)) == player):
+        if board.get((0, 0)) == player and board.get((1, 0)) == player and board.get((2, 0)) == player:
             return player
-        if (board.get((0, 1)) == player and board.get((1, 1)) == player and board.get((2, 1)) == player):
+        if board.get((0, 1)) == player and board.get((1, 1)) == player and board.get((2, 1)) == player:
             return player
-        if (board.get((0, 2)) == player and board.get((1, 2)) == player and board.get((2, 2)) == player):
+        if board.get((0, 2)) == player and board.get((1, 2)) == player and board.get((2, 2)) == player:
             return player
 
         # Check Diagonals
-        if (board.get((0, 0)) == player and board.get((1, 1)) == player and board.get((2, 2)) == player):
+        if board.get((0, 0)) == player and board.get((1, 1)) == player and board.get((2, 2)) == player:
             return player
-        if (board.get((0, 2)) == player and board.get((1, 1)) == player and board.get((2, 0)) == player):
+        if board.get((0, 2)) == player and board.get((1, 1)) == player and board.get((2, 0)) == player:
             return player
-
         return ''
