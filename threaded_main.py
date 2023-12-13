@@ -62,12 +62,12 @@ if __name__ == "__main__":
     print("Games per thread: ", games_per_thread)
     print("Total games: ", total_games)
     print("Threads: ", thread_count)
+
     for i in range(0, thread_count):
         threads[i] = multiprocessing.Process(target=simulate_games,
                                              args=(
-                                                 games_per_thread, U3T(), games.random_player, alpha_beta_cutoff_player,
+                                                 games_per_thread, U3T(), alpha_beta_cutoff_player, games4e.mcts_player,
                                                  i, queue))
-
     for i in range(0, thread_count):
         threads[i].start()
         print("Thread ", i, " started")
