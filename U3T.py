@@ -223,39 +223,22 @@ class U3T(Game):
         if (state.next_grid == None):
             # Use all heuristics
             for move in self.actions(state):
-                playerTileHeat = self.compute_tile_wins_heat(state, state.board, move, player, otherPlayer,
-                                                             self.get_board_from_move(
-                                                                 move))  # If player tile heat is high, playing in this tile increases tile win likelihood
-                opponentTileHeat = self.compute_tile_wins_heat(state, state.board, move, otherPlayer, player,
-                                                               self.get_board_from_move(
-                                                                   move))  # If opponent tile heat is high, playing in this tile will block the opponent in some way
-                opponentHappinessHeat = self.compute_opponent_board_heat(state, player, otherPlayer,
-                                                                         ((move[0] % 3) * 3) + (
-                                                                                 move[
-                                                                                     1] % 3))  # If opponent is likely to win from being sent to this board, don't send them there
-                playerBoardHeat = self.compute_board_wins_heat(state, player, otherPlayer, self.get_board_from_move(
-                    move))  # If player is likely to win by playing in this board, play there
-                opponentBoardHeat = self.compute_board_wins_heat(state, otherPlayer, player, self.get_board_from_move(
-                    move))  # If opponent is likely to win by playing in this board, playing in this will block the opponent in some way
+                playerTileHeat = self.compute_tile_wins_heat(state, state.board, move, player, otherPlayer, self.get_board_from_move(move))  # If player tile heat is high, playing in this tile increases tile win likelihood
+                opponentTileHeat = self.compute_tile_wins_heat(state, state.board, move, otherPlayer, player, self.get_board_from_move(move))  # If opponent tile heat is high, playing in this tile will block the opponent in some way
+                opponentHappinessHeat = self.compute_opponent_board_heat(state, player, otherPlayer,((move[0] % 3) * 3) + (move[1] % 3))  # If opponent is likely to win from being sent to this board, don't send them there
+                playerBoardHeat = self.compute_board_wins_heat(state, player, otherPlayer, self.get_board_from_move(move))  # If player is likely to win by playing in this board, play there
+                opponentBoardHeat = self.compute_board_wins_heat(state, otherPlayer, player, self.get_board_from_move(move))  # If opponent is likely to win by playing in this board, playing in this will block the opponent in some way
 
-                hotnessDict[
-                    move] = 4 * playerTileHeat * playerBoardHeat + 0 * opponentTileHeat * opponentBoardHeat + 0.5 * opponentHappinessHeat
+                hotnessDict[move] = playerTileHeat * playerBoardHeat + opponentTileHeat * opponentBoardHeat + opponentHappinessHeat
                 # print("Move: (" + str(move[0]) + "," + str(move[1]) + "), Player Tile Heat: " + str(playerTileHeat) + ", Opponent Tile Heat: " + str(opponentTileHeat) + ", Opponent Happiness Heat: " + str(opponentHappinessHeat) + ", Player Board Heat: " + str(playerBoardHeat) + ", Opponent Board Heat: " + str(opponentBoardHeat) + ", Total Heat: " + str(hotnessDict[move]))
         # Just use tile heat and opponent board heat
         else:
             for move in self.actions(state):
-                playerTileHeat = self.compute_tile_wins_heat(state, state.board, move, player, otherPlayer,
-                                                             self.get_board_from_move(
-                                                                 move))  # If player tile heat is high, playing in this tile increases tile win likelihood
-                opponentTileHeat = self.compute_tile_wins_heat(state, state.board, move, otherPlayer, player,
-                                                               self.get_board_from_move(
-                                                                   move))  # If opponent tile heat is high, playing in this tile will block the opponent in some way
-                opponentHappinessHeat = self.compute_opponent_board_heat(state, player, otherPlayer,
-                                                                         ((move[0] % 3) * 3) + (
-                                                                                 move[
-                                                                                     1] % 3))  # If opponent is likely to win from being sent to this board, don't send them there
+                playerTileHeat = self.compute_tile_wins_heat(state, state.board, move, player, otherPlayer, self.get_board_from_move(move))  # If player tile heat is high, playing in this tile increases tile win likelihood
+                opponentTileHeat = self.compute_tile_wins_heat(state, state.board, move, otherPlayer, player, self.get_board_from_move(move))  # If opponent tile heat is high, playing in this tile will block the opponent in some way
+                opponentHappinessHeat = self.compute_opponent_board_heat(state, player, otherPlayer,((move[0] % 3) * 3) + (move[1] % 3))  # If opponent is likely to win from being sent to this board, don't send them there
 
-                hotnessDict[move] = 4 * playerTileHeat + 0 * opponentTileHeat + 0.5 * opponentHappinessHeat
+                hotnessDict[move] = playerTileHeat + opponentTileHeat + opponentHappinessHeat
                 # print("Move: (" + str(move[0]) + "," + str(move[1]) + "), Player Tile Heat: " + str(playerTileHeat) + ", Opponent Tile Heat: " + str(opponentTileHeat) + ", Opponent Happiness Heat: " + str(opponentHappinessHeat) + ", Total Heat: " + str(hotnessDict[move]))
 
         # If dictionary is empty, there is no available move.
@@ -304,7 +287,18 @@ class U3T(Game):
             return -5
         # Otherwise, see how likely opponent is to win from capturing that board
         else:
-            return -1 * self.compute_board_wins_heat(state, otherPlayer, player, boardNum)
+            board = self.henry_normalize_board_from_num(state.board, boardNum, otherPlayer)
+            return -1 * self.countNumOpponent(state, boardNum, otherPlayer)
+        
+    def countNumOpponent(self, state, boardNum, otherPlayer):
+        board = self.henry_normalize_board_from_num(state.board, boardNum, otherPlayer)
+        count = 0
+
+        for space in board.values():
+            if space == otherPlayer:
+                count += 1
+
+        return count
 
     def henry_normalize_board(self, board, move, player):
         boardNum = self.get_board_from_move(move)
@@ -322,6 +316,21 @@ class U3T(Game):
 
         newMove = (move[0] % 3, move[1] % 3)
         newBoard[newMove] = player
+
+        return newBoard
+    
+    def henry_normalize_board_from_num(self, board, boardNum, player):
+
+        newBoard = {}
+        newBoard[(0, 0)] = board.get((0 + (boardNum // 3) * 3, 0 + (boardNum % 3) * 3))
+        newBoard[(0, 1)] = board.get((0 + (boardNum // 3) * 3, 1 + (boardNum % 3) * 3))
+        newBoard[(0, 2)] = board.get((0 + (boardNum // 3) * 3, 2 + (boardNum % 3) * 3))
+        newBoard[(1, 0)] = board.get((1 + (boardNum // 3) * 3, 0 + (boardNum % 3) * 3))
+        newBoard[(1, 1)] = board.get((1 + (boardNum // 3) * 3, 1 + (boardNum % 3) * 3))
+        newBoard[(1, 2)] = board.get((1 + (boardNum // 3) * 3, 2 + (boardNum % 3) * 3))
+        newBoard[(2, 0)] = board.get((2 + (boardNum // 3) * 3, 0 + (boardNum % 3) * 3))
+        newBoard[(2, 1)] = board.get((2 + (boardNum // 3) * 3, 1 + (boardNum % 3) * 3))
+        newBoard[(2, 2)] = board.get((2 + (boardNum // 3) * 3, 2 + (boardNum % 3) * 3))
 
         return newBoard
 
@@ -362,25 +371,25 @@ class U3T(Game):
 
     def gameWon(self, board, player):
         # Check Rows
-        if (board.get(0) == player and board.get(1) == player and board.get(2) == player):
+        if (board.get((0, 0)) == player and board.get((0, 1)) == player and board.get((0, 2)) == player):
             return player
-        if (board.get(3) == player and board.get(4) == player and board.get(5) == player):
+        if (board.get((1, 0)) == player and board.get((1, 1)) == player and board.get((1, 2)) == player):
             return player
-        if (board.get(6) == player and board.get(7) == player and board.get(8) == player):
+        if (board.get((2, 0)) == player and board.get((2, 1)) == player and board.get((2, 2)) == player):
             return player
 
         # Check Columns
-        if (board.get(0) == player and board.get(3) == player and board.get(6) == player):
+        if (board.get((0, 0)) == player and board.get((1, 0)) == player and board.get((2, 0)) == player):
             return player
-        if (board.get(1) == player and board.get(4) == player and board.get(7) == player):
+        if (board.get((0, 1)) == player and board.get((1, 1)) == player and board.get((2, 1)) == player):
             return player
-        if (board.get(2) == player and board.get(5) == player and board.get(8) == player):
+        if (board.get((0, 2)) == player and board.get((1, 2)) == player and board.get((2, 2)) == player):
             return player
 
         # Check Diagonals
-        if (board.get(0) == player and board.get(4) == player and board.get(8) == player):
+        if (board.get((0, 0)) == player and board.get((1, 1)) == player and board.get((2, 2)) == player):
             return player
-        if (board.get(2) == player and board.get(4) == player and board.get(6) == player):
+        if (board.get((0, 2)) == player and board.get((1, 1)) == player and board.get((2, 0)) == player):
             return player
 
         return ''
