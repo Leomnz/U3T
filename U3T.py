@@ -88,9 +88,6 @@ class U3T(Game):
         converted_3x3_board, converted_move = self.normalize_board(board, move, player=state.to_move)
         converted_3x3_board[converted_move] = state.to_move
         if self.compute_utility_3x3(converted_3x3_board, converted_move, state.to_move) != 0:
-        # converted_3x3_board = self.henry_normalize_board(board, move, state.to_move)
-        # converted_move = (move[0] % 3, move[1] % 3)
-        # if self.small_board_win(converted_3x3_board, converted_move, state.to_move) != 0:
             finished_board_index = self.get_board_from_move(move)
             overall_board[finished_board_index] = state.to_move
             overall_board[self.toLoc[finished_board_index]] = state.to_move
@@ -206,6 +203,16 @@ class U3T(Game):
             for player in players:
                 self.display(state)
                 print(state)
+                move = player(self, state)
+                state = self.result(state, move)
+                if self.terminal_test(state):
+                    return self.utility(state, self.to_move(self.initial))
+
+    def play_game_silent(self, *players):
+        """Play an n-person, move-alternating game."""
+        state = self.initial
+        while True:
+            for player in players:
                 move = player(self, state)
                 state = self.result(state, move)
                 if self.terminal_test(state):
