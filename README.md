@@ -21,4 +21,4 @@ you would look at the second column, third row to find that it is 0.166. In othe
 ### Full Experimental Discussion
 A PDF containing a full experimental discussion of the project is attached below.
 
-[Ultimate Tic Tac Toe Intelligent Agents.pdf](https://github.com/Leomnz/U3T/files/14594540/Ultimate.Tic.Tac.Toe.Intelligent.Agents.pdf)
+[Ultimate Tic-Tac-Toe Artificial Intelligence Agents.pdf](https://github.com/Leomnz/U3T/files/15138611/Ultimate.Tic-Tac-Toe.Artificial.Intelligence.Agents.pdf)
